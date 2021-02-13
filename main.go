@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/thomas-chastaingt/Goflix/server"
@@ -24,11 +25,7 @@ func run() error {
 		return err
 	}
 
-	movies, err := srv.Store.GetMovies()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("movies=%v\n", movies)
+	http.HandleFunc("/", srv.ServHTTP)
 	defer srv.Store.Close()
 	return nil
 }
