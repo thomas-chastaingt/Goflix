@@ -13,6 +13,8 @@ type Store interface {
 	Close() error
 
 	GetMovies() ([]*movie.Movie, error)
+	GetMovieById(id int64) (*movie.Movie, error)
+	CreateMovie(m *movie.Movie) error
 }
 
 type DbStore struct {
@@ -52,4 +54,22 @@ func (store *DbStore) GetMovies() ([]*movie.Movie, error) {
 		return movies, err
 	}
 	return movies, nil
+}
+
+func (store *DbStore) GetMovieById(id int64) (*movie.Movie, error) {
+	var movie = &movie.Movie{}
+	err := store.db.Get(movie, "SELECT * FROM movie WHERE id=$1", id)
+	if err != nil {
+		return movie, nil
+	}
+	return movie, nil
+}
+
+func (Store *DbStore) CreateMovie(m *movie.Movie) error {
+	res, err := Store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", m.Title, m.ReleaseDate, m.Duration, m.TrailerURL)
+	if err != nil {
+		return err
+	}
+	m.ID, err = res.LastInsertId()
+	return err
 }

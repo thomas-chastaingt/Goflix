@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -26,6 +27,8 @@ func run() error {
 	}
 
 	http.HandleFunc("/", srv.ServHTTP)
+	log.Printf("Serving HTTP on port 9000")
+	http.ListenAndServe(":9000", nil)
 	defer srv.Store.Close()
 	return nil
 }

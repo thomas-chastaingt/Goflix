@@ -18,12 +18,12 @@ func NewServer() *Server {
 	s := &Server{
 		Router: mux.NewRouter(),
 	}
-
-	return
+	s.Routes()
+	return s
 }
 
 func (s *Server) ServHTTP(w http.ResponseWriter, r *http.Request) {
-	s.Router.ServeHTTP(w, r)
+	logRequestMiddleware(s.Router.ServeHTTP).ServeHTTP(w, r)
 }
 
 func (s *Server) Respond(w http.ResponseWriter, _ *http.Request, data interface{}, status int) {
@@ -37,4 +37,8 @@ func (s *Server) Respond(w http.ResponseWriter, _ *http.Request, data interface{
 		log.Printf("Cannot format to json")
 	}
 
+}
+
+func (s *Server) decode(w http.ResponseWriter, r *http.Request, v interface{}) error {
+	return json.NewDecoder(r.Body).Decode(v)
 }
