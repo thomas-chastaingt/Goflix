@@ -2,7 +2,10 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -30,11 +33,34 @@ func (s *Server) handleTokenCreate() http.HandlerFunc {
 		if err != nil {
 			msg := fmt.Sprintf("Cannot parse login body. err=%v", err)
 			log.Println(msg)
-			s.Respond(w, r responseError{
+			s.Respond(w, r, respondError{
 				Error: msg,
 			}, http.StatusBadRequest)
 			return
 		}
-		if req.Username != "golang" 
+		if req.Username != "golang" || req.Password != "rocks" {
+			s.Respond(w, r, respondError{
+				Error: "Invalid credentials",
+			}, http.StatusUnauthorized)
+			return
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"username": req.Username,
+			"exp":      time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+			"iat":      time.Now().Unix(),
+		})
+
+		tokenStr, err := token.SignedString([]byte(JWT_APP_KEY))
+		if err != nil {
+			msg := fmt.Sprint("Cannot generate JWT err=%v", err)
+			s.Respond(w, r, respondError{
+				Error: msg,
+			}, http.StatusInternalServerError)
+			return
+		}
+		s.Respond(w, r, response{
+			Token: tokenStr,
+		}, http.StatusOK)
 	}
 }
