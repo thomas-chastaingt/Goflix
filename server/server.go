@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/thomas-chastaingt/Goflix/store"
 )
@@ -20,6 +21,15 @@ func NewServer() *Server {
 	s := &Server{
 		Router: mux.NewRouter(),
 	}
+
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"authorization"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowCredentials(),
+	)
+
+	s.Router.Use(cors)
+
 	s.Routes()
 	return s
 }
