@@ -32,7 +32,8 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 		Password string `json:"password"`
 	}
 	type response struct {
-		Token string `json:"token"`
+		Token string   `json:"token"`
+		User  JsonUser `json:"user"`
 	}
 	type respondError struct {
 		Error string `json:"error"`
@@ -79,8 +80,11 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 			}, http.StatusInternalServerError)
 			return
 		}
+		jsonUser := mapUserToJson(user)
+		fmt.Println(jsonUser)
 		s.Respond(w, r, response{
 			Token: tokenStr,
+			User:  jsonUser,
 		}, http.StatusOK)
 	}
 }
@@ -91,9 +95,6 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		VerifyPassword string `json:"verifyPassword"`
-	}
-	type response struct {
-		Token string `json:"token"`
 	}
 	type respondError struct {
 		Error string `json:"error"`

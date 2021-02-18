@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/thomas-chastaingt/Goflix/favourite"
 	"github.com/thomas-chastaingt/Goflix/movie"
 	userAccount "github.com/thomas-chastaingt/Goflix/user"
 	"github.com/thomas-chastaingt/Goflix/utils"
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS user
 	username TEXT,
 	password TEXT
 );
-CREATE TABLE IF NOT EXISTS user_movie
+CREATE TABLE IF NOT EXISTS favourite
 (
 	idUser INTEGER REFERENCES user(id),
 	idMovie INTEGER REFERENCES movie(id)
@@ -122,5 +123,16 @@ func (store *DbStore) CreateUser(u *userAccount.User) error {
 		return err
 	}
 	u.ID, err = res.LastInsertId()
+	return nil
+}
+
+/*************************************** Favourite methods ***************************************/
+
+func (store *DbStore) CreateFavourite(f *favourite.Favourite) error {
+	_, err := store.db.Exec("INSERT INTO favourite (idUser, idMovie) VALUES (?,?)", f.IDUser, f.IDMovie)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
