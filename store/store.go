@@ -17,7 +17,8 @@ type Store interface {
 	GetMovieById(id int64) (*movie.Movie, error)
 	CreateMovie(m *movie.Movie) error
 
-	FindUser(username string, password string) (bool, error)
+	CreateUser(u *userAccount.User) (bool, error)
+	FindUser(username string, password string) error
 }
 
 type DbStore struct {
@@ -94,11 +95,11 @@ func (Store *DbStore) FindUser(username string, password string) (bool, error) {
 	return count == 1, nil
 }
 
-func (Store *DbStore) CreateUser(u *userAccount.User) (bool, error) {
+func (Store *DbStore) CreateUser(u *userAccount.User) error {
 	res, err := Store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
 	if err != nil {
-		return false, err
+		return err
 	}
 	u.ID, err = res.LastInsertId()
-	return true, err
+	return nil
 }

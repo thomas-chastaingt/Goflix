@@ -11,13 +11,11 @@ import (
 	"github.com/thomas-chastaingt/Goflix/utils"
 )
 
-
-type jsonUser struct {
-	ID          int64  `json:"id"`
+type JsonUser struct {
+	ID       int64  `json:"id"`
 	username string `json:"username"`
 	password string `json:"password"`
 }
-
 
 func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -109,12 +107,14 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 			Username: req.username,
 			Password: hashPass,
 		}
+		err = s.Store.CreateUser(u)
 	}
 }
 
 func mapUserToJson(u *userAccount.User) JsonUser {
-	return JsonMovie{
-		ID:          u.ID,
-		usern
+	return JsonUser{
+		ID:       u.ID,
+		username: u.Username,
+		password: u.Password,
 	}
 }
