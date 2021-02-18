@@ -15,7 +15,7 @@ Make sure the following dependencies are installed:
 
 
 
-Start the backend (replace credentials with your [own values](https://developer.twitter.com/en/apps)):
+Start the backend :
 ```bash
 $ cd Goflix
 $ go mod download
