@@ -92,6 +92,12 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 		Password       string `json:"password"`
 		VerifyPassword string `json:"verifyPassword"`
 	}
+	type response struct {
+		Token string `json:"token"`
+	}
+	type respondError struct {
+		Error string `json:"error"`
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := request{}
 		err := s.decode(w, r, &req)
@@ -101,8 +107,22 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 			return
 		}
 
-		value := comparePasswords(req.Password, req.VerifyPassword)
-		if value == false {
+		user, err := s.Store.FindUserByName(req.Username)
+		usernameCompare := compareUsername(user.Username, req.Username)
+		if usernameCompare == false {
+			msg := fmt.Sprint("Username already exist")
+			s.Respond(w, r, respondError{
+				Error: msg,
+			}, http.StatusBadRequest)
+			return
+		}
+
+		passwordCompare := comparePasswords(req.Password, req.VerifyPassword)
+		if passwordCompare == false {
+			msg := fmt.Sprint("Password should be similar")
+			s.Respond(w, r, respondError{
+				Error: msg,
+			}, http.StatusBadRequest)
 			return
 		}
 		hashPass, err := utils.HashPassword(req.Password)
@@ -140,6 +160,14 @@ func mapUserToJson(u *userAccount.User) JsonUser {
 //comparePassword compare two given password
 func comparePasswords(password string, verifyPassword string) bool {
 	if password != verifyPassword {
+		return false
+	}
+	return true
+}
+
+//compareUsername compare if username already exist in database username
+func compareUsername(usernameDb string, username string) bool {
+	if usernameDb == username {
 		return false
 	}
 	return true
