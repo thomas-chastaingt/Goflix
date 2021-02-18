@@ -11,18 +11,21 @@ import (
 	"github.com/thomas-chastaingt/Goflix/utils"
 )
 
+//JsonUser define User in json
 type JsonUser struct {
 	ID       int64  `json:"id"`
 	username string `json:"username"`
 	password string `json:"password"`
 }
 
+//handleIndex is the index
 func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Welcome to Goflix")
 	}
 }
 
+//handleUserLogin permits to sign in
 func (s *Server) handleUserLogin() http.HandlerFunc {
 	type request struct {
 		Username string `json:"username"`
@@ -82,6 +85,7 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 	}
 }
 
+//handleUserCreate permits to create a new user
 func (s *Server) handleUserCreate() http.HandlerFunc {
 	type request struct {
 		Username       string `json:"username"`
@@ -124,6 +128,7 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 	}
 }
 
+//mapUserToJson map the Movie in Json
 func mapUserToJson(u *userAccount.User) JsonUser {
 	return JsonUser{
 		ID:       u.ID,
@@ -132,6 +137,7 @@ func mapUserToJson(u *userAccount.User) JsonUser {
 	}
 }
 
+//comparePassword compare two given password
 func comparePasswords(password string, verifyPassword string) bool {
 	if password != verifyPassword {
 		return false

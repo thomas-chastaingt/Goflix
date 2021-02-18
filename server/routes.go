@@ -1,5 +1,6 @@
 package server
 
+//Routes define all routes
 func (s *Server) Routes() {
 	s.Router.HandleFunc("/", s.handleIndex()).Methods("GET")
 	s.Router.HandleFunc("/api/user/login", s.handleUserLogin()).Methods("POST")

@@ -9,6 +9,7 @@ import (
 	"github.com/thomas-chastaingt/Goflix/movie"
 )
 
+//JsonMovie define Movie in Json
 type JsonMovie struct {
 	ID          int64  `json:"id"`
 	Title       string `json:"title"`
@@ -17,6 +18,7 @@ type JsonMovie struct {
 	TrailerURL  string `json:"trailer_url"`
 }
 
+//handleMovieList send all movie
 func (s *Server) handleMovieList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		movies, err := s.Store.GetMovies()
@@ -34,6 +36,7 @@ func (s *Server) handleMovieList() http.HandlerFunc {
 	}
 }
 
+//handleMovieDetail give detail on a movie
 func (s *Server) handleMovieDetail() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -54,6 +57,7 @@ func (s *Server) handleMovieDetail() http.HandlerFunc {
 	}
 }
 
+//handleCreateMovie create a new movie
 func (s *Server) handleMovieCreate() http.HandlerFunc {
 	type request struct {
 		Title       string `json:"title"`
@@ -89,6 +93,7 @@ func (s *Server) handleMovieCreate() http.HandlerFunc {
 	}
 }
 
+//mapMovieToJson permits to mapped Movie
 func mapMovieToJson(m *movie.Movie) JsonMovie {
 	return JsonMovie{
 		ID:          m.ID,

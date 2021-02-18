@@ -10,6 +10,7 @@ import (
 	"github.com/thomas-chastaingt/Goflix/store"
 )
 
+//main function to start the server
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -17,6 +18,7 @@ func main() {
 	}
 }
 
+//run permits to start the server in main func
 func run() error {
 	srv := server.NewServer()
 	srv.Store = &store.DbStore{}

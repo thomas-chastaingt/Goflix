@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//logRequestMiddleware give the path of the request in console
 func logRequestMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[%v] %v", r.Method, r.URL.RequestURI())

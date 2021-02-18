@@ -9,6 +9,7 @@ import (
 	userAccount "github.com/thomas-chastaingt/Goflix/user"
 )
 
+//Store implement store methods
 type Store interface {
 	Open() error
 	Close() error
@@ -21,6 +22,7 @@ type Store interface {
 	FindUserByName(username string) (*userAccount.User, error)
 }
 
+//DbStore define the database
 type DbStore struct {
 	db *sqlx.DB
 }
@@ -42,6 +44,7 @@ CREATE TABLE IF NOT EXISTS user
 );
 `
 
+//Open permits to open database
 func (store *DbStore) Open() error {
 	db, err := sqlx.Connect("sqlite3", "goflix.db")
 	if err != nil {
@@ -53,10 +56,13 @@ func (store *DbStore) Open() error {
 	return nil
 }
 
+//Close permits to close database
 func (store *DbStore) Close() error {
 	return store.db.Close()
 }
 
+//GetMovies permits to get all movies from database
+//RETURN all movies
 func (store *DbStore) GetMovies() ([]*movie.Movie, error) {
 	var movies []*movie.Movie
 	err := store.db.Select(&movies, "SELECT * FROM movie")
@@ -66,6 +72,8 @@ func (store *DbStore) GetMovies() ([]*movie.Movie, error) {
 	return movies, nil
 }
 
+//GetMovieById permits to get specific movie from database
+//RETURN a movie
 func (store *DbStore) GetMovieById(id int64) (*movie.Movie, error) {
 	var movie = &movie.Movie{}
 	err := store.db.Get(movie, "SELECT * FROM movie WHERE id=$1", id)
@@ -75,6 +83,7 @@ func (store *DbStore) GetMovieById(id int64) (*movie.Movie, error) {
 	return movie, nil
 }
 
+//CreateMovie permits to create a new movie from database
 func (store *DbStore) CreateMovie(m *movie.Movie) error {
 	res, err := store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", m.Title, m.ReleaseDate, m.Duration, m.TrailerURL)
 	if err != nil {
@@ -86,6 +95,7 @@ func (store *DbStore) CreateMovie(m *movie.Movie) error {
 
 /*************************************** User methods ***************************************/
 
+//FindUserByName permits to get a specific user in databse
 func (store *DbStore) FindUserByName(username string) (*userAccount.User, error) {
 	var user = &userAccount.User{}
 	err := store.db.Get(user, "SELECT * FROM user WHERE username=$1", username)
@@ -95,6 +105,7 @@ func (store *DbStore) FindUserByName(username string) (*userAccount.User, error)
 	return user, nil
 }
 
+//CreateUser permits to create a new user in database
 func (store *DbStore) CreateUser(u *userAccount.User) error {
 	res, err := store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
 	if err != nil {
