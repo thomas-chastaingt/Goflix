@@ -34,9 +34,12 @@ Here is a list of all the big technologies we use:
 ```
 .
 ├── _utils
+│   ├── regex.go
 │   └── utils.go
 ├── _user
 │   └── user.go
+├── _favourite.go
+│   └── favourite.go
 ├── _movie
 │   └── movie.go
 ├── _server
