@@ -7,7 +7,17 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	userAccount "github.com/thomas-chastaingt/Goflix/user"
+	"github.com/thomas-chastaingt/Goflix/utils"
 )
+
+
+type jsonUser struct {
+	ID          int64  `json:"id"`
+	username string `json:"username"`
+	password string `json:"password"`
+}
+
 
 func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -38,9 +48,16 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 			return
 		}
 
-		found, err := s.Store.Fin
+		found, err := s.Store.FindUser(req.Username, req.Password)
+		if err != nil {
+			msg := fmt.Sprint("Cannot find user err=%v", err)
+			s.Respond(w, r, respondError{
+				Error: msg,
+			}, http.StatusInternalServerError)
+			return
+		}
 
-		if req.Username != "golang" || req.Password != "rocks" {
+		if !found {
 			s.Respond(w, r, respondError{
 				Error: "Invalid credentials",
 			}, http.StatusUnauthorized)
@@ -64,5 +81,40 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 		s.Respond(w, r, response{
 			Token: tokenStr,
 		}, http.StatusOK)
+	}
+}
+
+func (s *Server) handleUserCreate() http.HandlerFunc {
+	type request struct {
+		username string `json:"username"`
+		password string `json:"password"`
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := request{}
+		err := s.decode(w, r, &req)
+		if err != nil {
+			log.Printf("Cannot parse user body error = %v", err)
+			s.Respond(w, r, nil, http.StatusBadRequest)
+			return
+		}
+
+		hashPass, err := utils.HashPassword(req.password)
+		if err != nil {
+			log.Printf("Cannot parse user body error = %v", err)
+			s.Respond(w, r, nil, http.StatusBadRequest)
+			return
+		}
+		u := &userAccount.User{
+			ID:       0,
+			Username: req.username,
+			Password: hashPass,
+		}
+	}
+}
+
+func mapUserToJson(u *userAccount.User) JsonUser {
+	return JsonMovie{
+		ID:          u.ID,
+		usern
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/thomas-chastaingt/Goflix/movie"
+	userAccount "github.com/thomas-chastaingt/Goflix/user"
 )
 
 type Store interface {
@@ -15,6 +16,8 @@ type Store interface {
 	GetMovies() ([]*movie.Movie, error)
 	GetMovieById(id int64) (*movie.Movie, error)
 	CreateMovie(m *movie.Movie) error
+
+	FindUser(username string, password string) (bool, error)
 }
 
 type DbStore struct {
@@ -30,12 +33,11 @@ CREATE TABLE IF NOT EXISTS movie
 	duration INTEGER,
 	trailer_url TEXT
 );
-
 CREATE TABLE IF NOT EXISTS user
 (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	username TEXT,
-	password TEXT,
+	password TEXT
 );
 `
 
@@ -81,6 +83,8 @@ func (Store *DbStore) CreateMovie(m *movie.Movie) error {
 	return err
 }
 
+/*************************************** User methods ***************************************/
+
 func (Store *DbStore) FindUser(username string, password string) (bool, error) {
 	var count int
 	err := Store.db.Get(&count, "SELECT COUNT(id) FROM user WHERE username=$1 AND password=$2", username, password)
@@ -88,4 +92,13 @@ func (Store *DbStore) FindUser(username string, password string) (bool, error) {
 		return false, nil
 	}
 	return count == 1, nil
+}
+
+func (Store *DbStore) CreateUser(u *userAccount.User) (bool, error) {
+	res, err := Store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
+	if err != nil {
+		return false, err
+	}
+	u.ID, err = res.LastInsertId()
+	return true, err
 }
