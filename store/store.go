@@ -22,6 +22,8 @@ type Store interface {
 
 	CreateUser(u *userAccount.User) error
 	FindUserByName(username string) (*userAccount.User, error)
+
+	CreateFavourite(f *favourite.Favourite) error
 }
 
 //DbStore define the database

@@ -13,8 +13,7 @@ func (s *Server) handleAddFavourite() http.HandlerFunc {
 		idUser  int `json:"idUser"`
 		idMovie int `json:"idMovie"`
 	}
-	type response struct {
-	}
+	type response struct{}
 	type respondError struct {
 		Error string `json:"error"`
 	}
@@ -29,6 +28,8 @@ func (s *Server) handleAddFavourite() http.HandlerFunc {
 			}, http.StatusBadRequest)
 			return
 		}
+		fmt.Println("id movie : ", req.idMovie)
+
 		f := &favourite.Favourite{
 			IDMovie: req.idMovie,
 			IDUser:  req.idUser,
