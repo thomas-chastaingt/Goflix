@@ -43,6 +43,11 @@ CREATE TABLE IF NOT EXISTS user
 	username TEXT,
 	password TEXT
 );
+CREATE TABLE IF NOT EXISTS user_movie
+(
+	idUser INTEGER REFERENCES user(id),
+	idMovie INTEGER REFERENCES movie(id)
+);
 `
 
 //Open permits to open database
