@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS movie
 	duration INTEGER,
 	trailer_url TEXT
 );
+
+CREATE TABLE IF NOT EXISTS user
+(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	username TEXT,
+	password TEXT,
+);
 `
 
 func (store *DbStore) Open() error {
@@ -72,4 +79,13 @@ func (Store *DbStore) CreateMovie(m *movie.Movie) error {
 	}
 	m.ID, err = res.LastInsertId()
 	return err
+}
+
+func (Store *DbStore) FindUser(username string, password string) (bool, error) {
+	var count int
+	err := Store.db.Get(&count, "SELECT COUNT(id) FROM user WHERE username=$1 AND password=$2", username, password)
+	if err != nil {
+		return false, nil
+	}
+	return count == 1, nil
 }

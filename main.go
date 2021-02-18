@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	fmt.Println("hello world")
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)

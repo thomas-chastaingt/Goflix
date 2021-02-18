@@ -15,7 +15,7 @@ func (s *Server) handleIndex() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleTokenCreate() http.HandlerFunc {
+func (s *Server) handleUserLogin() http.HandlerFunc {
 	type request struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -27,7 +27,6 @@ func (s *Server) handleTokenCreate() http.HandlerFunc {
 		Error string `json:"error"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to Goflix")
 		req := request{}
 		err := s.decode(w, r, &req)
 		if err != nil {
@@ -38,6 +37,9 @@ func (s *Server) handleTokenCreate() http.HandlerFunc {
 			}, http.StatusBadRequest)
 			return
 		}
+
+		found, err := s.Store.Fin
+
 		if req.Username != "golang" || req.Password != "rocks" {
 			s.Respond(w, r, respondError{
 				Error: "Invalid credentials",
