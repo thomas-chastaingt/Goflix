@@ -7,6 +7,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/thomas-chastaingt/Goflix/movie"
 	userAccount "github.com/thomas-chastaingt/Goflix/user"
+	"github.com/thomas-chastaingt/Goflix/utils"
 )
 
 //Store implement store methods
@@ -85,7 +86,10 @@ func (store *DbStore) GetMovieById(id int64) (*movie.Movie, error) {
 
 //CreateMovie permits to create a new movie from database
 func (store *DbStore) CreateMovie(m *movie.Movie) error {
-	res, err := store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", m.Title, m.ReleaseDate, m.Duration, m.TrailerURL)
+	title := utils.DeleteSpecialCharacter(m.Title)
+	release := utils.DeleteSpecialCharacter(m.ReleaseDate)
+	trailer := utils.DeleteSpecialCharacter(m.TrailerURL)
+	res, err := store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", title, release, m.Duration, trailer)
 	if err != nil {
 		return err
 	}
@@ -107,7 +111,8 @@ func (store *DbStore) FindUserByName(username string) (*userAccount.User, error)
 
 //CreateUser permits to create a new user in database
 func (store *DbStore) CreateUser(u *userAccount.User) error {
-	res, err := store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
+	username := utils.DeleteSpecialCharacter(u.Username)
+	res, err := store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", username, u.Password)
 	if err != nil {
 		return err
 	}
