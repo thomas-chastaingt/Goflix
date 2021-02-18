@@ -46,7 +46,7 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 			return
 		}
 
-		found, err := s.Store.FindUser(req.Username, req.Password)
+		user, err := s.Store.FindUserByName(req.Username)
 		if err != nil {
 			msg := fmt.Sprint("Cannot find user err=%v", err)
 			s.Respond(w, r, respondError{
@@ -55,7 +55,7 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 			return
 		}
 
-		if !found {
+		if utils.CheckPasswordHash(req.Password, user.Password) == false {
 			s.Respond(w, r, respondError{
 				Error: "Invalid credentials",
 			}, http.StatusUnauthorized)
@@ -84,8 +84,9 @@ func (s *Server) handleUserLogin() http.HandlerFunc {
 
 func (s *Server) handleUserCreate() http.HandlerFunc {
 	type request struct {
-		username string `json:"username"`
-		password string `json:"password"`
+		Username       string `json:"username"`
+		Password       string `json:"password"`
+		VerifyPassword string `json:"verifyPassword"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := request{}
@@ -96,7 +97,11 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 			return
 		}
 
-		hashPass, err := utils.HashPassword(req.password)
+		value := comparePasswords(req.Password, req.VerifyPassword)
+		if value == false {
+			return
+		}
+		hashPass, err := utils.HashPassword(req.Password)
 		if err != nil {
 			log.Printf("Cannot parse user body error = %v", err)
 			s.Respond(w, r, nil, http.StatusBadRequest)
@@ -104,10 +109,18 @@ func (s *Server) handleUserCreate() http.HandlerFunc {
 		}
 		u := &userAccount.User{
 			ID:       0,
-			Username: req.username,
+			Username: req.Username,
 			Password: hashPass,
 		}
+
 		err = s.Store.CreateUser(u)
+		if err != nil {
+			log.Printf("Cannot create a user")
+			s.Respond(w, r, nil, http.StatusInternalServerError)
+			return
+		}
+		var resp = mapUserToJson(u)
+		s.Respond(w, r, resp, http.StatusOK)
 	}
 }
 
@@ -117,4 +130,11 @@ func mapUserToJson(u *userAccount.User) JsonUser {
 		username: u.Username,
 		password: u.Password,
 	}
+}
+
+func comparePasswords(password string, verifyPassword string) bool {
+	if password != verifyPassword {
+		return false
+	}
+	return true
 }

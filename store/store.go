@@ -17,8 +17,8 @@ type Store interface {
 	GetMovieById(id int64) (*movie.Movie, error)
 	CreateMovie(m *movie.Movie) error
 
-	CreateUser(u *userAccount.User) (bool, error)
-	FindUser(username string, password string) error
+	CreateUser(u *userAccount.User) error
+	FindUserByName(username string) (*userAccount.User, error)
 }
 
 type DbStore struct {
@@ -75,8 +75,8 @@ func (store *DbStore) GetMovieById(id int64) (*movie.Movie, error) {
 	return movie, nil
 }
 
-func (Store *DbStore) CreateMovie(m *movie.Movie) error {
-	res, err := Store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", m.Title, m.ReleaseDate, m.Duration, m.TrailerURL)
+func (store *DbStore) CreateMovie(m *movie.Movie) error {
+	res, err := store.db.Exec("INSERT INTO movie (title, release_date, duration, trailer_url) VALUES (?,?,?,?)", m.Title, m.ReleaseDate, m.Duration, m.TrailerURL)
 	if err != nil {
 		return err
 	}
@@ -86,17 +86,17 @@ func (Store *DbStore) CreateMovie(m *movie.Movie) error {
 
 /*************************************** User methods ***************************************/
 
-func (Store *DbStore) FindUser(username string, password string) (bool, error) {
-	var count int
-	err := Store.db.Get(&count, "SELECT COUNT(id) FROM user WHERE username=$1 AND password=$2", username, password)
+func (store *DbStore) FindUserByName(username string) (*userAccount.User, error) {
+	var user = &userAccount.User{}
+	err := store.db.Get(user, "SELECT * FROM user WHERE username=$1", username)
 	if err != nil {
-		return false, nil
+		return user, nil
 	}
-	return count == 1, nil
+	return user, nil
 }
 
-func (Store *DbStore) CreateUser(u *userAccount.User) error {
-	res, err := Store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
+func (store *DbStore) CreateUser(u *userAccount.User) error {
+	res, err := store.db.Exec("INSERT INTO user (username, password) VALUES (?,?)", u.Username, u.Password)
 	if err != nil {
 		return err
 	}
