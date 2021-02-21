@@ -130,6 +130,7 @@ func (store *DbStore) CreateUser(u *userAccount.User) error {
 
 /*************************************** Favourite methods ***************************************/
 
+//CreateFavourite permits to associate a user and a movie
 func (store *DbStore) CreateFavourite(f *favourite.Favourite) error {
 	_, err := store.db.Exec("INSERT INTO favourite (idUser, idMovie) VALUES (?,?)", f.IDUser, f.IDMovie)
 	if err != nil {

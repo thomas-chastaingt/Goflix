@@ -10,8 +10,8 @@ import (
 
 func (s *Server) handleAddFavourite() http.HandlerFunc {
 	type request struct {
-		idUser  int `json:"idUser"`
-		idMovie int `json:"idMovie"`
+		IDUser  int `json:"idUser"`
+		IDMovie int `json:"idMovie"`
 	}
 	type response struct{}
 	type respondError struct {
@@ -28,11 +28,9 @@ func (s *Server) handleAddFavourite() http.HandlerFunc {
 			}, http.StatusBadRequest)
 			return
 		}
-		fmt.Println("id movie : ", req.idMovie)
-
 		f := &favourite.Favourite{
-			IDMovie: req.idMovie,
-			IDUser:  req.idUser,
+			IDMovie: req.IDMovie,
+			IDUser:  req.IDUser,
 		}
 
 		err = s.Store.CreateFavourite(f)
